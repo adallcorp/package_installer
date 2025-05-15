@@ -53,10 +53,19 @@ class PackageInstaller:
             return True
 
         if self.is_windows:
-            command = "winget install Schniz.fnm && fnm install 22"
+            command = (
+                "winget install Schniz.fnm && "
+                "refreshenv && "  # Refresh environment variables
+                "$env:Path = [System.Environment]::GetEnvironmentVariable('Path','Machine') + ';' + "
+                "[System.Environment]::GetEnvironmentVariable('Path','User') && "
+                "fnm install 22"
+            )
         elif self.is_mac:
             command = (
-                "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash &&"
+                "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && "
+                'export NVM_DIR="$HOME/.nvm" && '
+                '[ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh" && '  # Load nvm
+                '[ -s "$NVM_DIR/bash_completion" ] && \\. "$NVM_DIR/bash_completion" && '  # Load completion
                 "nvm install 22"
             )
 
