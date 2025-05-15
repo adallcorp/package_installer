@@ -36,7 +36,7 @@ class PackageInstaller:
 
         if self.is_windows:
             print("Bun installation on Windows requires PowerShell...")
-            command = 'powershell -Command "irm bun.sh/install.ps1|iex"'
+            command = 'powershell -c "irm bun.sh/install.ps1|iex"'
         elif self.is_mac:
             if self.check_command_exists("brew"):
                 command = "brew install bun"
@@ -53,17 +53,13 @@ class PackageInstaller:
             return True
 
         if self.is_windows:
-            print("Please install Node.js manually from https://nodejs.org/")
-            return False
+            command = "winget install Schniz.fnm && fnm install 22"
         elif self.is_mac:
-            if self.check_command_exists("brew"):
-                command = "brew install node"
-            else:
-                print(
-                    "Please install Homebrew first or download Node.js from "
-                    "https://nodejs.org/"
-                )
-                return False
+            command = (
+                "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash &&"
+                "nvm install 22"
+            )
+
         else:  # Linux
             command = (
                 "curl -fsSL https://deb.nodesource.com/setup_lts.x | "
