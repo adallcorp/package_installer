@@ -77,7 +77,7 @@ class PackageInstaller:
         """Set the claude config json file."""
         config_path = self.get_claude_config_file()
         with open(config_path, "w") as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=2)
 
     def get_available_packages(self) -> List[str]:
         """Get list of available packages."""
