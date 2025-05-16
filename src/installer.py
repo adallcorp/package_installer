@@ -1,10 +1,7 @@
-"""Package installer implementation."""
-
 import json
 import subprocess
 import platform
 from pathlib import Path
-import os
 from typing import Dict, List
 
 
@@ -30,7 +27,10 @@ class PackageInstaller:
         try:
             where_cmd = "where" if self.is_windows else "which"
             subprocess.run(
-                f"{where_cmd} {command}", shell=True, check=True, capture_output=True
+                f"{where_cmd} {command}",
+                shell=True,
+                check=True,
+                capture_output=True,
             )
             return True
         except subprocess.CalledProcessError:
@@ -38,7 +38,11 @@ class PackageInstaller:
 
     def check_mcp_exists(self, mcp_name: str) -> bool:
         """Check if a MCP exists in the system PATH."""
-        pass
+        config = self.get_claude_config_json()
+        if config:
+            mcp_servers = config.get("mcpServers", [])
+            return mcp_name in mcp_servers
+        return False
 
     def get_claude_config_json(self) -> str:
         """Get the claude config json file."""

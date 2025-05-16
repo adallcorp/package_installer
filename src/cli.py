@@ -111,7 +111,7 @@ def list_packages(installer: PackageInstaller) -> None:
     print("\n사용 가능한 MCP:")
     print("-" * 20)
     for mcp in installer.get_available_mcps():
-        if installer.check_command_exists(mcp):
+        if installer.check_mcp_exists(mcp):
             print(f"- {mcp} (설치됨)")
         else:
             print(f"- {mcp}")
