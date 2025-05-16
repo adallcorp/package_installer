@@ -25,5 +25,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 - show(사용 가능한 **명령어**를 더욱 자세히 볼 수 있습니다.)
 - install(패키지 **다운로드** 명령어)
 - config(claude config 파일 확인)
+- mcp(claude config에 설치된 서버 List)
 
 > 모든 명령어 뒤에 "-h" or "--help"를 붙이면 상세하게 볼 수 있습니다.
