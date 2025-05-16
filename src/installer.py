@@ -143,13 +143,12 @@ class PackageInstaller:
     def install_node(self) -> bool:
         """Install Node.js runtime."""
         if self.is_windows:
-            if self.check_command_exists("fnm"):
+            if self.check_command_exists("npm"):
                 print("Node.js is already installed")
                 return True
 
             command = (
                 "winget install Schniz.fnm && "
-                "refreshenv && "  # Refresh environment variables
                 "$env:Path = [System.Environment]::"
                 "GetEnvironmentVariable('Path','Machine') + ';' + "
                 "[System.Environment]::"
