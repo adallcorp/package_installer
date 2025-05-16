@@ -18,15 +18,12 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## 패키지 실행
+## 명령어 실행
 
 실행 가능한 명령어
 - list(사용 가능한 **명령어** 리스트)
+- show(사용 가능한 **명령어**를 더욱 자세히 볼 수 있습니다.)
 - install(패키지 **다운로드** 명령어)
 - config(claude config 파일 확인)
 
 > 모든 명령어 뒤에 "-h" or "--help"를 붙이면 상세하게 볼 수 있습니다.
-
-```python
-uv main.py --help
-```

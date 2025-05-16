@@ -87,7 +87,20 @@ class PackageInstaller:
     def get_available_packages(self) -> List[str]:
         return ["bun", "node"]
 
-    def install_package(self, package_name: str) -> bool:
+    def get_available_mcps(self) -> List[str]:
+        return ["weather", "playwright", "taskmaster-ai"]
+
+    def install_package(self, package_name: str) -> Dict[str, bool]:
+        if package_name == "packages":
+            results = {}
+            for pkg in self.get_available_packages():
+                print(f"\nInstalling {pkg}...")
+                results[pkg] = self.install_single_package(pkg)
+            return results
+
+        return {package_name: self.install_single_package(package_name)}
+
+    def install_single_package(self, package_name: str) -> bool:
         install_methods = {
             "bun": self.install_bun,
             "node": self.install_node,
@@ -99,6 +112,30 @@ class PackageInstaller:
 
         print(f"\nInstalling {package_name}...")
         return install_methods[package_name]()
+
+    def install_mcp(self, mcp_name: str) -> Dict[str, bool]:
+        if mcp_name == "mcps":
+            results = {}
+            for mcp in self.get_available_mcps():
+                print(f"\nInstalling {mcp}...")
+                results[mcp] = self.install_single_mcp(mcp)
+            return results
+
+        return {mcp_name: self.install_single_mcp(mcp_name)}
+
+    def install_single_mcp(self, mcp_name: str) -> bool:
+        install_methods = {
+            "weather": self.install_weather,
+            "playwright": self.install_playwright,
+            "taskmaster-ai": self.install_taskmaster,
+        }
+
+        if mcp_name not in install_methods:
+            print(f"Unknown MCP: {mcp_name}")
+            return False
+
+        print(f"\nInstalling {mcp_name}...")
+        return install_methods[mcp_name]()
 
     def mcp_server_list(self) -> bool:
         pass
@@ -135,29 +172,35 @@ def create_parser() -> argparse.ArgumentParser:
     # Install command
     install_parser = subparsers.add_parser(
         "install",
-        help="패키지 매니저 설치",
-        description="지정된 패키지 매니저를 설치합니다.",
+        help="패키지 또는 MCP 설치",
+        description="지정된 패키지 또는 MCP를 설치합니다.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 사용 예시:
   %(prog)s bun             # bun만 설치
   %(prog)s node bun        # node와 bun 설치
-  %(prog)s                # 모든 패키지 설치
+  %(prog)s packages        # 모든 패키지 설치
+  %(prog)s mcps           # 모든 MCP 설치
 """,
     )
     install_parser.add_argument(
         "packages",
-        nargs="*",
-        help="설치할 패키지 목록 (bun, node). "
-        "지정되지 않으면 모든 패키지를 설치합니다.",
-        metavar="PACKAGE",
+        nargs="+",
+        help="설치할 항목 (bun, node, packages, weather, playwright, "
+        "taskmaster-ai, mcps)",
+        metavar="ITEM",
     )
 
     # List command
-    subparsers.add_parser(
+    list_parser = subparsers.add_parser(
         "list",
-        help="사용 가능한 패키지 매니저 목록 표시",
-        description="설치 가능한 모든 패키지 매니저 목록을 표시합니다.",
+        help="설치 가능한 리스트 목록 표시",
+        description="설치 가능한 모든 패키지/MCP 목록을 표시합니다.",
+    )
+    list_parser.add_argument(
+        "command_name",
+        choices=["package", "mcp"],
+        help="표시할 목록 종류 (package, mcp)",
     )
 
     # Show arguments command
@@ -180,26 +223,49 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def show_command_help(parser: argparse.ArgumentParser, command_name: str) -> None:
+def list_command_help(parser: argparse.ArgumentParser, command_name: str):
+    """List 명령어의 상세 도움말을 표시합니다."""
+    if command_name == "package":
+        installer = PackageInstaller()
+
+        print("\n사용 가능한 패키지:")
+        print("-" * 40)
+
+        for package in installer.get_available_packages():
+            if installer.check_command_exists(package):
+                print(f"- {package} (설치됨)")
+            else:
+                print(f"- {package}")
+
+        return
+
+    elif command_name == "mcp":
+        print("\n[mcp 목록 상세 정보]")
+        print("-" * 40)
+        print("사용법: uv run main.py list mcp")
+        print("\n설명: 설치 가능한 모든 MCP 목록을 표시합니다.")
+
+
+def show_command_help(parser: argparse.ArgumentParser, command_name: str):
     """특정 명령어의 상세 도움말을 표시합니다."""
     if command_name == "install":
         print("\n[install 명령어 상세 정보]")
         print("-" * 40)
-        print("사용법: package_installer install [PACKAGE...]")
+        print("사용법: uv run main.py install [PACKAGE...]")
         print("\n사용 가능한 인자:")
         print("  PACKAGE  설치할 패키지 이름 (선택사항)")
         print("\n설치 가능한 패키지:")
         print("  - bun   : Bun 자바스크립트 런타임")
         print("  - node  : Node.js 자바스크립트 런타임")
         print("\n예시:")
-        print("  package_installer install bun      # bun만 설치")
-        print("  package_installer install node bun  # node와 bun 설치")
-        print("  package_installer install         # 모든 패키지 설치")
+        print("  uv run main.py install bun      # bun만 설치")
+        print("  uv run main.py install node bun  # node와 bun 설치")
+        print("  uv run main.py install package         # 모든 패키지 설치")
 
     elif command_name == "list":
         print("\n[list 명령어 상세 정보]")
         print("-" * 40)
-        print("사용법: package_installer list")
+        print("사용법: uv run main.py list")
         print("\n설명: 설치 가능한 모든 패키지 목록을 표시합니다.")
 
 
@@ -214,10 +280,7 @@ def main():
         return
 
     if args.command == "list":
-        print("\n사용 가능한 패키지:")
-        print("-" * 20)
-        for package in installer.get_available_packages():
-            print(f"- {package}")
+        list_command_help(parser, args.command_name)
         return
 
     if args.command == "config":
@@ -231,18 +294,23 @@ def main():
         return
 
     if args.command == "install":
-        packages_to_install = (
-            args.packages if args.packages else installer.get_available_packages()
-        )
+        all_results: Dict[str, bool] = {}
 
-        results: Dict[str, bool] = {}
-        for package in packages_to_install:
-            results[package] = installer.install_package(package)
+        for item in args.packages:
+            if item in installer.get_available_packages() or item == "packages":
+                results = installer.install_package(item)
+                all_results.update(results)
+            elif item in installer.get_available_mcps() or item == "mcps":
+                results = installer.install_mcp(item)
+                all_results.update(results)
+            else:
+                print(f"Unknown item: {item}")
+                all_results[item] = False
 
         # Print summary
         print("\n설치 요약:")
         print("-" * 30)
-        for name, success in results.items():
+        for name, success in all_results.items():
             status = "성공" if success else "실패"
             print(f"{name}: {status}")
         return
