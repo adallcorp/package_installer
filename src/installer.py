@@ -38,14 +38,13 @@ class PackageInstaller:
 
     def check_mcp_exists(self, mcp_name: str) -> bool:
         """Check if a MCP exists in the system PATH."""
-        config = self.get_claude_config_json()
+        config = self.get_claude_config()
         if config:
             mcp_servers = config.get("mcpServers", [])
             return mcp_name in mcp_servers
         return False
 
-    def get_claude_config_json(self) -> str:
-        """Get the claude config json file."""
+    def get_claude_config_file(self) -> str:
         if self.is_mac:
             config_path = Path.joinpath(
                 Path.home(),
@@ -62,12 +61,23 @@ class PackageInstaller:
                 "Claude",
                 "claude_desktop_config.json",
             )
+        return config_path
+
+    def get_claude_config(self) -> str:
+        """Get the claude config json file."""
+        config_path = self.get_claude_config_file()
 
         if config_path.exists():
             with open(config_path, "r") as f:
                 return json.load(f)
 
         return None
+
+    def set_claude_config_json(self, config: str) -> None:
+        """Set the claude config json file."""
+        config_path = self.get_claude_config_file()
+        with open(config_path, "w") as f:
+            json.dump(config, f)
 
     def get_available_packages(self) -> List[str]:
         """Get list of available packages."""
@@ -164,4 +174,22 @@ class PackageInstaller:
     def install_playwright(self) -> bool:
         """Install Playwright MCP."""
         # TODO: Implement Playwright MCP installation
+        config = self.get_claude_config()
+        if config:
+            mcp_servers = config.get("mcpServers", [])
+            if "playwright" in mcp_servers:
+                print("Playwright 서버는 이미 설치되어 있습니다.")
+                return True
+            else:
+                print("Playwright 서버를 설치합니다.")
+                play_wright_server = {
+                    "playwright": {
+                        "command": "npx",
+                        "args": ["@playwright/mcp@latest"],
+                    }
+                }
+                print(config["mcpServers"])
+                config["mcpServers"].update(play_wright_server)
+                self.set_claude_config_json(config)
+                return True
         return False

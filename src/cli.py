@@ -119,7 +119,7 @@ def list_packages(installer: PackageInstaller) -> None:
 
 def show_claude_config(installer: PackageInstaller) -> None:
     """Show the claude config."""
-    config = installer.get_claude_config_json()
+    config = installer.get_claude_config()
     for server in config:
         print(server)
     if config:
@@ -132,7 +132,7 @@ def show_claude_config(installer: PackageInstaller) -> None:
 
 def show_claude_mcp_servers(installer: PackageInstaller) -> None:
     """Show the claude MCP servers."""
-    servers = installer.get_claude_config_json().get("mcpServers", [])
+    servers = installer.get_claude_config().get("mcpServers", [])
     if servers:
         print("\n클로드 MCP 서버 목록:")
         print("-" * 20)
