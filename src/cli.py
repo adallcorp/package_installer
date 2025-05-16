@@ -120,14 +120,12 @@ def list_packages(installer: PackageInstaller) -> None:
 def show_claude_config(installer: PackageInstaller) -> None:
     """Show the claude config."""
     config = installer.get_claude_config()
-    for server in config:
-        print(server)
-    if config:
+    if config is None:
+        print("클로드 설정파일이 존재하지 않습니다.")
+    else:
         print("\n클로드 설정파일 상태:")
         print("-" * 20)
         print(json.dumps(config, indent=2))
-    else:
-        print("클로드 설정파일이 존재하지 않습니다.")
 
 
 def show_claude_mcp_servers(installer: PackageInstaller) -> None:

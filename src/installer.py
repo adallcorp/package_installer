@@ -69,8 +69,11 @@ class PackageInstaller:
 
         if config_path.exists():
             with open(config_path, "r") as f:
+                content = f.read()
+                if not content:
+                    return None
+                f.seek(0)
                 return json.load(f)
-
         return None
 
     def set_claude_config_json(self, config: str) -> None:
@@ -173,10 +176,12 @@ class PackageInstaller:
 
     def install_playwright(self) -> bool:
         """Install Playwright MCP."""
-        # TODO: Implement Playwright MCP installation
         config = self.get_claude_config()
-        if config:
+        if config is not None:
             mcp_servers = config.get("mcpServers", [])
+            if len(mcp_servers) == 0:
+                config = {"mcpServers": {}}
+
             if "playwright" in mcp_servers:
                 print("Playwright 서버는 이미 설치되어 있습니다.")
                 return True
