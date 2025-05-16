@@ -54,7 +54,7 @@ class PackageInstaller:
             config_path = Path.joinpath(
                 Path.home(),
                 "AppData",
-                "Local",
+                "Roaming",
                 "Claude",
                 "claude_desktop_config.json",
             )
